@@ -19,9 +19,14 @@ TRANSISTOR EMITTER -> BLACK POWER # Complete the circuit
 #### Gyro:
 
 ARD 3.3V -> UCC
+
 ARD GND -> GND
+
 ARD A4 -> SDA
+
 ARD -> A5
+
+
 
 INT -> ARD PIN 2
 

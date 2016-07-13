@@ -285,7 +285,7 @@ void loop() {
         fadeAmount = -fadeAmount ;
     }
     // wait for 30 milliseconds to see the dimming effect
-    delayABit(30);
+    delay(30);
 
     // reset interrupt flag and get INT_STATUS byte
     mpuInterrupt = false;

@@ -16,7 +16,9 @@ TRANSISTOR BASE -> ARD PIN 9 # Regulated voltage from Arduino
 
 TRANSISTOR EMITTER -> BLACK POWER # Complete the circuit
 
-#### Gyro:
+#### IMU:
+
+[MPU6050 Overview](http://42bots.com/tutorials/arduino-uno-and-the-invensense-mpu-6050-6dof-imu/)
 
 ARD 3.3V -> UCC
 
@@ -24,7 +26,7 @@ ARD GND -> GND
 
 ARD A4 -> SDA
 
-ARD -> A5
+ARD A5 -> SCL
 
 
 

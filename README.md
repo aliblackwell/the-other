@@ -32,7 +32,7 @@ ARD A4 -> SDA # [Just following orders](http://42bots.com/tutorials/arduino-uno-
 
 ARD A5 -> SCL # More following orders
 
-INT -> ARD PIN 2 # Still following orders
+INT -> ARD PIN 2 # Interrupt pin. [Useful reading on Arduino interrupts](http://www.allaboutcircuits.com/technical-articles/using-interrupts-on-arduino/)
 
 #### Circuit to do:
 

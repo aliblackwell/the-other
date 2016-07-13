@@ -1,0 +1,26 @@
+/*
+
+  This is the main file for the interactive light project. It will be uploaded to each Arduino.
+
+  The code that animates the lights is saved in a separate file called lights.h
+
+  The code that reads from the sensor is saved in a separate file called sensors.h
+
+*/
+
+int lightZapper = 9; // store pin 9 as our light controller
+int arduinoNumber = 1; // which arduino are we working with?
+
+void setup() {
+
+  // Setup our pin to control the voltage into the LEDs
+  pinMode(lightZapper, OUTPUT);
+
+  // Tell our user we are on
+  acknowledgeSetup();
+
+}
+
+void loop() {
+
+}

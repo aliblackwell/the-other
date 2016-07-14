@@ -145,6 +145,20 @@ void detectThrow() {
 
 /*
 
+  detectVerticalToHorizontal
+
+  This function should detect centrifugal force
+
+*/
+
+void detectVerticalToHorizontal() {
+
+
+}
+
+
+/*
+
   detectCentrifugalForce
 
   This function should detect centrifugal force
@@ -155,3 +169,7 @@ void detectCentrifugalForce() {
 
 
 }
+
+
+
+

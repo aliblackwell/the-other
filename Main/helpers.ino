@@ -6,6 +6,8 @@
 */
 
 void printIntToSerial(int valueToPrint) {
+
   Serial.print(valueToPrint);
   Serial.print("\n");
+
 }

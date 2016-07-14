@@ -38,10 +38,6 @@ VectorFloat gravity;    // [x, y, z]            gravity vector
 float euler[3];         // [psi, theta, phi]    Euler angle container
 float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
-// ================================================================
-// ===               INTERRUPT DETECTION ROUTINE                ===
-// ================================================================
-
 volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
 void dmpDataReady() {
     mpuInterrupt = true;
@@ -51,76 +47,19 @@ void dmpDataReady() {
 int lightZapper = 9; // store pin 9 as our light controller
 int arduinoNumber = 1; // which arduino are we working with?
 
-// LED Brightness
-int led = 9;           // the PWM pin the LED is attached to
-int brightness = 0;    // how bright the LED is
-int fadeAmount = 5;    // how many points to fade the LED by
-
 void setup() {
-
 
   // Tell our user we are on
   acknowledgeSetup();
 
-  Wire.begin();
-  Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
-  Serial.begin(115200);
-  // initialize device
-  Serial.println(F("Initializing I2C devices..."));
-  mpu.initialize();
-
-  // verify connection
-  Serial.println(F("Testing device connections..."));
-  Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
-  delay(2);
-
-  // load and configure the DMP
-  Serial.println(F("Initializing DMP..."));
-  devStatus = mpu.dmpInitialize();
-
-  // supply your own gyro offsets here, scaled for min sensitivity
-
-  mpu.setXAccelOffset(-1841);
-  mpu.setYAccelOffset(-3092);
-  mpu.setZAccelOffset(1650);
-  mpu.setXGyroOffset(90);
-  mpu.setYGyroOffset(-13);
-  mpu.setZGyroOffset(19);
-
-  if (devStatus == 0)
-  {
-    // turn on the DMP, now that it's ready
-    Serial.println(F("Enabling DMP..."));
-    mpu.setDMPEnabled(true);
-
-    // enable Arduino interrupt detection
-    Serial.println(F("Enabling interrupt detection (Arduino external interrupt 0)..."));
-    attachInterrupt(0, dmpDataReady, RISING);
-    mpuIntStatus = mpu.getIntStatus();
-
-    // set our DMP Ready flag so the main loop() function knows it's okay to use it
-    Serial.println(F("DMP ready! Waiting for first interrupt..."));
-    dmpReady = true;
-
-    // get expected DMP packet size for later comparison
-    packetSize = mpu.dmpGetFIFOPacketSize();
-  }
-  else
-  {
-    // ERROR!
-    // 1 = initial memory load failed
-    // 2 = DMP configuration updates failed
-    // (if it's going to break, usually the code will be 1)
-    Serial.print(F("DMP Initialization failed (code "));
-    Serial.print(devStatus);
-    Serial.println(F(")"));
-  }
-
+  // Run the default code to setup the sensor (located in startup.ino – have a look, don't freak out)
+  runSetup();
 
   // Setup our pin to control the voltage into the LEDs
   pinMode(lightZapper, OUTPUT);
 
 }
+
 
 void loop() {
   // if programming failed, don't try to do anything

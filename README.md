@@ -38,4 +38,25 @@ INT -> ARD PIN 2 # Interrupt pin. [Useful reading on Arduino interrupts](http://
 
 Add a switch that is accessible from outside the casing between RED POWER and LED RED so the Light can be set in position and then turned on.
 
+### The Four actions
+
+
+#### Horizontal / Vertical:
+
+Slow fade out going down
+Slow fade in coming up
+
+#### Turning on the axis:
+
+Fade in and Out
+Five second gap
+
+#### Impact:
+
+Light on, throw it light off, catch it light back on
+
+
+#### Centrifugal Force:
+
+Flashes faster and faster the faster it's spinning
 

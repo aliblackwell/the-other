@@ -1,4 +1,60 @@
 
+void setGyroOffsets(int arduinoNumber) {
+
+  int xAccelOffset, yAccelOffset, zAccellOffset;
+  int xGyroOffset, yGyroOffset, zGyroOffset;
+
+  switch (arduinoNumber) {
+    case 1: xAccelOffset = -1841;
+            yAccelOffset = 3080;
+            zAccellOffset = 1617;
+            xGyroOffset = 82;
+            yGyroOffset = -11;
+            zGyroOffset = 23;
+            break;
+            break;
+    case 2: xAccelOffset = 326;
+            yAccelOffset = 1913;
+            zAccellOffset = 1593;
+            xGyroOffset = 65;
+            yGyroOffset = 23;
+            zGyroOffset = 46;
+            break;
+    case 3: xAccelOffset = -1382;
+            yAccelOffset = -834;
+            zAccellOffset = 1499;
+            xGyroOffset = 32;
+            yGyroOffset = 22;
+            zGyroOffset = 5;
+            break;
+    case 4: xAccelOffset = 2296;
+            yAccelOffset = 2941;
+            zAccellOffset = 1838;
+            xGyroOffset = 96;
+            yGyroOffset = -11;
+            zGyroOffset = 12;
+            break;
+    default:xAccelOffset = 187; // default number 5
+            yAccelOffset = 2323;186
+            zAccellOffset = 1380;
+            xGyroOffset = 98;
+            yGyroOffset = -56;
+            zGyroOffset = 7;
+            break;
+  }
+
+  mpu.setXAccelOffset(xAccelOffset);
+  mpu.setYAccelOffset(yAccelOffset);
+  mpu.setZAccelOffset(zAccellOffset);
+  mpu.setXGyroOffset(xGyroOffset);
+  mpu.setYGyroOffset(yGyroOffset);
+  mpu.setZGyroOffset(zGyroOffset);
+
+}
+
+
+
+
 void outputSensorValues() {
 
   // uncomment "OUTPUT_READABLE_QUATERNION" if you want to see the actual

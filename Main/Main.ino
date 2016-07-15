@@ -91,7 +91,7 @@ void loop() {
     fifoCount -= packetSize;
 
     // What function is this light performing?
-    detectRotation();
+    detectThrow();
 
     // For testing, configure options in gyro.ino to see the data
     outputSensorValues();

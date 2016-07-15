@@ -117,18 +117,18 @@ void outputSensorValues() {
 
 void detectRotation() {
 
-  // Need these methods to populate ypr
+  //Need these methods to populate ypr
   mpu.dmpGetQuaternion(&q, fifoBuffer);
+  mpu.dmpGetAccel(&aa, fifoBuffer);
   mpu.dmpGetGravity(&gravity, &q);
   mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
 
   int yawNumber = ypr[0] * 180/M_PI; // get value of yaw number out of ypr array and convert to radians
-
+  yawNumber=removeNegativeSign(yawNumber);
   printIntToSerial(yawNumber); // use a pretty print function from helpers.ino
-
   updateLightRotationAnimation(yawNumber); // use our updateLight function from lights.ino
 
-}
+}//
 
 /*
 
@@ -138,10 +138,44 @@ void detectRotation() {
 
 */
 
-void detectThrow() {
+boolean detectThrow() {
+            mpu.dmpGetQuaternion(&q, fifoBuffer);
+            mpu.dmpGetAccel(&aa, fifoBuffer);
+            mpu.dmpGetGravity(&gravity, &q);
+            mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+
+//Create variables for absolute values of x, y and z motion//
+            int x= removeNegativeSign(aaReal.x);
+            int y= removeNegativeSign(aaReal.y);
+            int z= removeNegativeSign(aaReal.z);
+            //Adding the values of x, y, z together//
+            int totalValue = (x + y + z);
+         
 
 
-}
+//           To look at the indiviudal values of x, y, z//
+//            Serial.print(aaReal.x);
+//            Serial.print("  ");
+//            Serial.print(aaReal.y);
+//            Serial.print("  ");
+//            Serial.print(aaReal.z);
+//            Serial.print("\n");
+
+//if statement, if the total value is greater than 8000, we assume that the device is moving//
+           if(totalValue >8000){
+            //if device is moving, the lights turn on//
+            return true;
+            
+           //if device is not moving, the lights turn off//
+           }else{
+            //digitalWrite(lightZapper, LOW);
+            //Serial.print("LOW");
+            //Serial.print("\n");
+            return false;
+            }
+            
+
+            }
 
 /*
 

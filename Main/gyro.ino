@@ -64,7 +64,7 @@ void outputSensorValues() {
 
   #ifdef OUTPUT_READABLE_YAWPITCHROLL
       // display Euler angles in degrees
-      mpu.dmpGetQuaternion(&q, fifoBuffer);
+      mpu.dmpGetQuate rnion(&q, fifoBuffer);
       mpu.dmpGetGravity(&gravity, &q);
       mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
       Serial.print("ypr\t");
@@ -170,6 +170,37 @@ void detectCentrifugalForce() {
 
 }
 
+/*
 
+  fiveSecondFade
 
+  This function should detect Fade
 
+*/
+
+void fadeTheLightsToALevel() {
+  mpu.dmpGetQuaternion(&q, fifoBuffer);
+  mpu.dmpGetAccel(&aa, fifoBuffer);
+  mpu.dmpGetGravity(&gravity, &q);
+  mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+
+  /*Fade lights*/
+  brightness = brightness + fadeLevel;
+
+  if(brightness <= 0 || brightness >= 255) {    // This is the logic that decides whether the brightness should increase or decrease after a certain critera is met
+  fadeLevel = -fadeLevel;
+  }
+
+  analogWrite(lightZapper, brightness);
+  
+  delay(5000);
+
+  Serial.print(brightness);
+  Serial.print("\n");
+
+   int yawNumber = ypr[0] * 180/M_PI; // get value of yaw number out of ypr array and convert to radians
+
+  printIntToSerial(yawNumber); // use a pretty print function from helpers.ino
+
+  updateLightRotationAnimation(yawNumber); // use our updateLight function from lights.ino
+}

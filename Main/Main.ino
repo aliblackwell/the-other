@@ -13,7 +13,7 @@
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "Wire.h"
 
-// Crete an instance of MPU6050 called mpu
+// Create an instance of MPU6050 called mpu
 MPU6050 mpu;
 
 #define INTERRUPT_PIN 2  // use pin 2 on Arduino Uno & most boards
@@ -46,6 +46,8 @@ void dmpDataReady() {
 
 int lightZapper = 9; // store pin 9 as our light controller
 int arduinoNumber = 1; // which arduino are we working with?
+int brightness = 0;
+int fadeLevel = 5;
 
 void setup() {
 
@@ -60,8 +62,8 @@ void setup() {
 
 }
 
-
 void loop() {
+
   // if programming failed, don't try to do anything
   if (!dmpReady) return;
   while (!mpuInterrupt && fifoCount < packetSize) {}
@@ -91,8 +93,8 @@ void loop() {
     fifoCount -= packetSize;
 
     // What function is this light performing?
-    detectRotation();
-
+    fadeTheLightsToALevel();
+    //detectRotation();
     // For testing, configure options in gyro.ino to see the data
     outputSensorValues();
 
@@ -100,4 +102,5 @@ void loop() {
     blinkState = !blinkState;
     digitalWrite(led_pin, LOW);
   }
+  //fadeTheLightsToALevel2();
 }

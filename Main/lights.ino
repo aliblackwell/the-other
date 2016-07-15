@@ -6,7 +6,10 @@
 */
 
 void acknowledgeSetup() {
-
+  digitalWrite(lightZapper,1);
+  delay(500);
+  digitalWrite(lightZapper,0);
+  delay(500);
 }
 
 /*
@@ -20,5 +23,3 @@ void  updateLightRotationAnimation(int yawNumber) {
   analogWrite(lightZapper, yawNumber); // update the light
 
 }
-
-

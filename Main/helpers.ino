@@ -11,3 +11,11 @@ void printIntToSerial(int valueToPrint) {
   Serial.print("\n");
 
 }
+
+int removeNegativeSign(int number) { //To remove the negative numbers and make them positive//
+
+  if (number < 0) { 
+    number= -number;
+    }
+    return number;
+  }

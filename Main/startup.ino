@@ -1,7 +1,7 @@
 void runSetup() {
 
   Wire.begin();
-  Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
+  Wire.setClock(800000); // 400kHz I2C clock. Comment this line if having compilation difficulties
   Serial.begin(115200);
   // initialize device
   Serial.println(F("Initializing I2C devices..."));
@@ -18,12 +18,12 @@ void runSetup() {
 
   // supply your own gyro offsets here, scaled for min sensitivity
 
-  mpu.setXAccelOffset(-1841);
-  mpu.setYAccelOffset(-3092);
-  mpu.setZAccelOffset(1650);
-  mpu.setXGyroOffset(90);
-  mpu.setYGyroOffset(-13);
-  mpu.setZGyroOffset(19);
+  mpu.setXAccelOffset(314);
+  mpu.setYAccelOffset(1921);
+  mpu.setZAccelOffset(1598);
+  mpu.setXGyroOffset(64);
+  mpu.setYGyroOffset(20);
+  mpu.setZGyroOffset(51);
 
   if (devStatus == 0)
   {

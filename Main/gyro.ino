@@ -150,8 +150,18 @@ void detectThrow() {
   This function should detect centrifugal force
 
 */
-
+      // display Euler angles in degrees
 void detectVerticalToHorizontal() {
+   mpu.dmpGetQuaternion(&q, fifoBuffer);
+      mpu.dmpGetEuler(euler, &q);
+     
+      //if ((euler[0] * 180/M_PI > 0) && (euler[0] < 90)) {
+         //changeBrightnessOfLight(euler[0]);
+
+        Serial.print(euler[0] * 180/M_PI);
+        Serial.print("\n");
+
+      //}
 
 
 }
@@ -162,6 +172,7 @@ void detectVerticalToHorizontal() {
   detectCentrifugalForce
 
   This function should detect centrifugal force
+
 
 */
 

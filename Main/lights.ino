@@ -15,10 +15,16 @@ void acknowledgeSetup() {
   This function should update the light when the user rotates the device
 */
 
-void  updateLightRotationAnimation(int yawNumber) {
+void  updateLightRotationAnimation(int brightness) {
 
-  analogWrite(lightZapper, yawNumber); // update the light
+  analogWrite(lightZapper, brightness); // update the light
 
 }
 
+
+// void changeBrightnessOfLight(float euler) {
+// 	analogWrite(lightZapper, euler);// we have set the brightness on the pinNumber:
+// 	printFloatToSerial(euler[0]); 
+
+// }
 

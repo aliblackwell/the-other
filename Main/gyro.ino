@@ -14,7 +14,7 @@
 // from the FIFO. Note this also requires gravity vector calculations.
 // Also note that yaw/pitch/roll angles suffer from gimbal lock (for
 // more info, see: http://en.wikipedia.org/wiki/Gimbal_lock)
-//#define OUTPUT_READABLE_YAWPITCHROLL
+#define OUTPUT_READABLE_YAWPITCHROLL
 
 // uncomment "OUTPUT_READABLE_REALACCEL" if you want to see acceleration
 // components with gravity removed. This acceleration reference frame is
@@ -73,6 +73,8 @@ void outputSensorValues() {
       Serial.print(ypr[1] * 180/M_PI);
       Serial.print("\t");
       Serial.println(ypr[2] * 180/M_PI);
+      Serial.println("\n");
+      Serial.println(lightStrength);
   #endif
 
   #ifdef OUTPUT_READABLE_REALACCEL
@@ -125,6 +127,7 @@ void detectRotation() {
   int yawNumber = ypr[0] * 180/M_PI; // get value of yaw number out of ypr array and convert to radians
 
   printIntToSerial(yawNumber); // use a pretty print function from helpers.ino
+  printIntToSerial(lightStrength);
 
   updateLightRotationAnimation(yawNumber); // use our updateLight function from lights.ino
 
@@ -153,6 +156,23 @@ void detectThrow() {
 
 void detectVerticalToHorizontal() {
 
+  myPitch = (ypr[0] + 180); //ypr is -180 to 180. This cahnges it to 0 to 360
+
+  if (myPitch >= 0 && myPitch <= 90) { //if the  pitch is between 12 and 3 o clock
+    lightStrength = (myPitch * 2.83333); //assign lightStrength a value which increases the fade
+  }
+  else if (myPitch >= 91 && myPitch <= 180) { //if the  pitch is between 3 and 6 o clock
+    lightStrength = (myPitch - ((myPitch - 90)* 2)* 2.83333); //assign lightStrength a value which decreases the fade
+  }
+  else if (myPitch >= 181 && myPitch <= 270) { //if the  pitch is between 6 and 9 o clock
+    lightStrength = ((myPitch - 180)* 2.83333); //assign lightStrength a value which increases the fade
+  }
+  else if (myPitch >= 271 && myPitch <= 360) { //if the  pitch is between 9 and 12 o clock
+    lightStrength = (myPitch - ((myPitch - 270)* 2)* 2.83333); //assign lightStrength a value which decreases the fade
+  }
+
+  analogWrite(lightZapper, lightStrength); //set the led_pin value to the lightStrength value
+ 
 
 }
 

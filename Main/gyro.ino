@@ -1,41 +1,40 @@
-// uncomment "OUTPUT_READABLE_QUATERNION" if you want to see the actual
-// quaternion components in a [w, x, y, z] format (not best for parsing
-// on a remote host such as Processing or something though)
-//#define OUTPUT_READABLE_QUATERNION
-
-// uncomment "OUTPUT_READABLE_EULER" if you want to see Euler angles
-// (in degrees) calculated from the quaternions coming from the FIFO.
-// Note that Euler angles suffer from gimbal lock (for more info, see
-// http://en.wikipedia.org/wiki/Gimbal_lock)
-//#define OUTPUT_READABLE_EULER
-
-// uncomment "OUTPUT_READABLE_YAWPITCHROLL" if you want to see the yaw/
-// pitch/roll angles (in degrees) calculated from the quaternions coming
-// from the FIFO. Note this also requires gravity vector calculations.
-// Also note that yaw/pitch/roll angles suffer from gimbal lock (for
-// more info, see: http://en.wikipedia.org/wiki/Gimbal_lock)
-#define OUTPUT_READABLE_YAWPITCHROLL
-
-// uncomment "OUTPUT_READABLE_REALACCEL" if you want to see acceleration
-// components with gravity removed. This acceleration reference frame is
-// not compensated for orientation, so +X is always +X according to the
-// sensor, just without the effects of gravity. If you want acceleration
-// compensated for orientation, us OUTPUT_READABLE_WORLDACCEL instead.
-//#define OUTPUT_READABLE_REALACCEL
-
-// uncomment "OUTPUT_READABLE_WORLDACCEL" if you want to see acceleration
-// components with gravity removed and adjusted for the world frame of
-// reference (yaw is relative to initial orientation, since no magnetometer
-// is present in this case). Could be quite handy in some cases.
-//#define OUTPUT_READABLE_WORLDACCEL
-
-// uncomment "OUTPUT_TEAPOT" if you want output that matches the
-// format used for the InvenSense teapot demo
-//#define OUTPUT_TEAPOT
-
-
 
 void outputSensorValues() {
+
+  // uncomment "OUTPUT_READABLE_QUATERNION" if you want to see the actual
+  // quaternion components in a [w, x, y, z] format (not best for parsing
+  // on a remote host such as Processing or something though)
+  //#define OUTPUT_READABLE_QUATERNION
+
+  // uncomment "OUTPUT_READABLE_EULER" if you want to see Euler angles
+  // (in degrees) calculated from the quaternions coming from the FIFO.
+  // Note that Euler angles suffer from gimbal lock (for more info, see
+  // http://en.wikipedia.org/wiki/Gimbal_lock)
+  //#define OUTPUT_READABLE_EULER
+
+  // uncomment "OUTPUT_READABLE_YAWPITCHROLL" if you want to see the yaw/
+  // pitch/roll angles (in degrees) calculated from the quaternions coming
+  // from the FIFO. Note this also requires gravity vector calculations.
+  // Also note that yaw/pitch/roll angles suffer from gimbal lock (for
+  // more info, see: http://en.wikipedia.org/wiki/Gimbal_lock)
+  // #define OUTPUT_READABLE_YAWPITCHROLL
+
+  // uncomment "OUTPUT_READABLE_REALACCEL" if you want to see acceleration
+  // components with gravity removed. This acceleration reference frame is
+  // not compensated for orientation, so +X is always +X according to the
+  // sensor, just without the effects of gravity. If you want acceleration
+  // compensated for orientation, us OUTPUT_READABLE_WORLDACCEL instead.
+  //#define OUTPUT_READABLE_REALACCEL
+
+  // uncomment "OUTPUT_READABLE_WORLDACCEL" if you want to see acceleration
+  // components with gravity removed and adjusted for the world frame of
+  // reference (yaw is relative to initial orientation, since no magnetometer
+  // is present in this case). Could be quite handy in some cases.
+  //#define OUTPUT_READABLE_WORLDACCEL
+
+  // uncomment "OUTPUT_TEAPOT" if you want output that matches the
+  // format used for the InvenSense teapot demo
+  //#define OUTPUT_TEAPOT
 
   #ifdef OUTPUT_READABLE_QUATERNION
       // display quaternion values in easy matrix form: w x y z
@@ -128,11 +127,7 @@ void detectRotation() {
   int yawNumber = ypr[0] * 180/M_PI; // get value of yaw number out of ypr array and convert to radians
   yawNumber=removeNegativeSign(yawNumber);
   printIntToSerial(yawNumber); // use a pretty print function from helpers.ino
-<<<<<<< HEAD
-=======
-  printIntToSerial(lightStrength);
 
->>>>>>> kell/horizontal-test
   updateLightRotationAnimation(yawNumber); // use our updateLight function from lights.ino
 
 }//
@@ -157,7 +152,7 @@ boolean detectThrow() {
             int z= removeNegativeSign(aaReal.z);
             //Adding the values of x, y, z together//
             int totalValue = (x + y + z);
-         
+
 
 
 //           To look at the indiviudal values of x, y, z//
@@ -172,7 +167,7 @@ boolean detectThrow() {
            if(totalValue >8000){
             //if device is moving, the lights turn on//
             return true;
-            
+
            //if device is not moving, the lights turn off//
            }else{
             //digitalWrite(lightZapper, LOW);
@@ -180,7 +175,7 @@ boolean detectThrow() {
             //Serial.print("\n");
             return false;
             }
-            
+
 
             }
 
@@ -210,7 +205,7 @@ void detectVerticalToHorizontal() {
   }
 
   analogWrite(lightZapper, lightStrength); //set the led_pin value to the lightStrength value
- 
+
 
 }
 

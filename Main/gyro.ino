@@ -35,7 +35,7 @@ void setGyroOffsets(int arduinoNumber) {
             zGyroOffset = 12;
             break;
     default:xAccelOffset = 187; // default number 5
-            yAccelOffset = 2323;186
+            yAccelOffset = 2323;
             zAccellOffset = 1380;
             xGyroOffset = 98;
             yGyroOffset = -56;
@@ -182,6 +182,7 @@ void detectRotation() {
 
   int yawNumber = ypr[0] * 180/M_PI; // get value of yaw number out of ypr array and convert to radians
   yawNumber=removeNegativeSign(yawNumber);
+  yawNumber = map(yawNumber, 0, 180, 0, 255);
   printIntToSerial(yawNumber); // use a pretty print function from helpers.ino
 
   updateLightRotationAnimation(yawNumber); // use our updateLight function from lights.ino
@@ -197,55 +198,57 @@ void detectRotation() {
 */
 
 boolean detectThrow() {
-            mpu.dmpGetQuaternion(&q, fifoBuffer);
-            mpu.dmpGetAccel(&aa, fifoBuffer);
-            mpu.dmpGetGravity(&gravity, &q);
-            mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+  mpu.dmpGetQuaternion(&q, fifoBuffer);
+  mpu.dmpGetAccel(&aa, fifoBuffer);
+  mpu.dmpGetGravity(&gravity, &q);
+  mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
 
 //Create variables for absolute values of x, y and z motion//
-            int x= removeNegativeSign(aaReal.x);
-            int y= removeNegativeSign(aaReal.y);
-            int z= removeNegativeSign(aaReal.z);
-            //Adding the values of x, y, z together//
-            int totalValue = (x + y + z);
+  int x= removeNegativeSign(aaReal.x);
+  int y= removeNegativeSign(aaReal.y);
+  int z= removeNegativeSign(aaReal.z);
+  //Adding the values of x, y, z together//
+  int totalValue = (x + y + z);
 
+  //if statement, if the total value is greater than 8000, we assume that the device is moving
+  if(totalValue > 8000){
+    // device is being thrown
+    return true;
+  }else{
+    // device is not being thrown
+    return false;
+  }
 
+}
 
-//           To look at the indiviudal values of x, y, z//
-//            Serial.print(aaReal.x);
-//            Serial.print("  ");
-//            Serial.print(aaReal.y);
-//            Serial.print("  ");
-//            Serial.print(aaReal.z);
-//            Serial.print("\n");
+/*
 
-//if statement, if the total value is greater than 8000, we assume that the device is moving//
-           if(totalValue >8000){
-            //if device is moving, the lights turn on//
-            return true;
+  detectThrow
 
-           //if device is not moving, the lights turn off//
-           }else{
-            //digitalWrite(lightZapper, LOW);
-            //Serial.print("LOW");
-            //Serial.print("\n");
-            return false;
-            }
+  This function should detect a spin
 
+*/
 
-            }
+boolean detectSpin() {
+  // Centrifugal force!
+  return false;
+}
 
 /*
 
   detectVerticalToHorizontal
 
-  This function should detect centrifugal force
+  This function should detect a change in angle (vertical to horizontal)
 
 */
 
 void detectVerticalToHorizontal() {
 
-  myPitch = (ypr[0] + 180); //ypr is -180 to 180. This cahnges it to 0 to 360
+  mpu.dmpGetQuaternion(&q, fifoBuffer);
+  mpu.dmpGetGravity(&gravity, &q);
+  mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+
+  myPitch = removeNegativeSign(ypr[1]); //ypr is -180 to 180. This cahnges it to 0 to 360
 
   if (myPitch >= 0 && myPitch <= 90) { //if the  pitch is between 12 and 3 o clock
     lightStrength = (myPitch * 2.83333); //assign lightStrength a value which increases the fade
@@ -259,6 +262,9 @@ void detectVerticalToHorizontal() {
   else if (myPitch >= 271 && myPitch <= 360) { //if the  pitch is between 9 and 12 o clock
     lightStrength = (myPitch - ((myPitch - 270)* 2)* 2.83333); //assign lightStrength a value which decreases the fade
   }
+
+  Serial.print(myPitch);
+  Serial.print("\n");
 
   analogWrite(lightZapper, lightStrength); //set the led_pin value to the lightStrength value
 

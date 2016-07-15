@@ -5,21 +5,22 @@
   This function prints a single into to serial followed by a linebreak
 */
 
-void printIntToSerial(int valueToPrint) {
+void printIntToSerial(float valueToPrint) {
 
   Serial.print(valueToPrint);
   Serial.print("\n");
 
 }
 
-int removeNegativeSign(int number) { //To remove the negative numbers and make them positive//
+/*
+  removeNegativeSign
 
-  if (number < 0) { 
+  To remove the negative numbers and make them positive
+*/
+
+int removeNegativeSign(int number) {
+  if (number < 0) {
     number= -number;
-    }
-    return number;
   }
-
-
-
-
+  return number;
+}

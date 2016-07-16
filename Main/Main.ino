@@ -13,6 +13,17 @@
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "Wire.h"
 
+
+int lightZapper = 9; // store pin 9 as our light controller
+
+int arduinoNumber = 4; // which arduino are we working with?
+
+// 1 and 2 should be THROWTATE
+//#define THROWTATE
+
+// 3, 4, 5 should be CENTRIFUGAL
+#define CENTRIFUGAL
+
 // Crete an instance of MPU6050 called mpu
 MPU6050 mpu;
 
@@ -44,15 +55,6 @@ void dmpDataReady() {
 }
 
 
-int lightZapper = 9; // store pin 9 as our light controller
-
-int arduinoNumber = 4; // which arduino are we working with?
-
-// 1 and 2 should be THROWTATE
-#define THROWTATE
-
-// 2, 3, 5 should be CENTRIFUGAL
-// #define CENTRIFUGAL
 
 
 

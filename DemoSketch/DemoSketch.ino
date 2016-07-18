@@ -193,6 +193,7 @@ void setup() {
 
     // initialize device
     Serial.println(F("Initializing I2C devices..."));
+    Serial.println(F("DemoSketch.ino"));
     mpu.initialize();
     pinMode(INTERRUPT_PIN, INPUT);
 

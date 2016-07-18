@@ -11,7 +11,7 @@ void setGyroOffsets(int arduinoNumber) {
             xGyroOffset = 82;
             yGyroOffset = -11;
             zGyroOffset = 23;
-            break;
+            Serial.print("ard1");
             break;
     case 2: xAccelOffset = 326;
             yAccelOffset = 1913;
@@ -184,10 +184,8 @@ void detectRotation() {
   yawNumber=removeNegativeSign(yawNumber);
   yawNumber = map(yawNumber, 0, 180, 0, 255);
   printIntToSerial(yawNumber); // use a pretty print function from helpers.ino
-
-  updateLightRotationAnimation(yawNumber); // use our updateLight function from lights.ino
-
-}//
+  analogWrite(9, yawNumber);
+}
 
 /*
 

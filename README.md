@@ -20,7 +20,7 @@ TRANSISTOR BASE -> ARD PIN 9 # Regulated voltage from Arduino
 
 TRANSISTOR EMITTER -> ARD GND # Complete the circuit with shared ground
 
-#### IMU:
+#### Sensor: MPU6050
 
 [MPU6050 Overview](http://42bots.com/tutorials/arduino-uno-and-the-invensense-mpu-6050-6dof-imu/)
 

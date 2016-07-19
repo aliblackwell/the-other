@@ -13,6 +13,17 @@
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "Wire.h"
 
+
+int lightZapper = 9; // store pin 9 as our light controller
+
+int arduinoNumber = 4; // which arduino are we working with?
+
+// 1 and 2 should be THROWTATE
+//#define THROWTATE
+
+// 3, 4, 5 should be CENTRIFUGAL
+#define CENTRIFUGAL
+
 // Crete an instance of MPU6050 called mpu
 MPU6050 mpu;
 
@@ -44,8 +55,9 @@ void dmpDataReady() {
 }
 
 
-int lightZapper = 9; // store pin 9 as our light controller
-int arduinoNumber = 1; // which arduino are we working with?
+
+
+
 int myPitch = 0; // variable needed to horizontal to verrtical function
 float lightStrength = 0; // variable needed to horizontal to verrtical function
 
@@ -92,15 +104,37 @@ void loop() {
     // (this lets us immediately read more without waiting for an interrupt)
     fifoCount -= packetSize;
 
-    // What function is this light performing?
-    bool throwDetected = detectThrow();
-    if(throwDetected){
-      digitalWrite(lightZapper, HIGH);
-      Serial.print("HIGH");
-      Serial.print("\n");
-    }else{
-      detectRotation();
-    }
+
+    #ifdef THROWTATE
+
+      // This light is THROWTATE
+      bool throwDetected = detectThrow();
+      if(throwDetected){
+        digitalWrite(lightZapper, LOW);
+        Serial.print("THROW");
+        Serial.print("\n");
+      }else{
+        Serial.print("NO");
+        Serial.print("\n");
+        detectRotation();
+      }
+
+    #endif
+
+    #ifdef CENTRIFUGAL
+
+      bool spinDetected = detectSpin();
+      if (spinDetected) {
+        digitalWrite(lightZapper, LOW);
+        Serial.print("SPIN");
+        Serial.print("\n");
+      } else {
+        Serial.print("UPANDDOWN");
+        Serial.print("\n");
+        detectVerticalToHorizontal();
+      }
+
+    #endif
 
     // For testing, configure options in gyro.ino to see the data
     outputSensorValues();

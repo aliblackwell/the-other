@@ -18,12 +18,7 @@ void runSetup() {
 
   // supply your own gyro offsets here, scaled for min sensitivity
 
-  mpu.setXAccelOffset(2286);
-  mpu.setYAccelOffset(2909);
-  mpu.setZAccelOffset(1847);
-  mpu.setXGyroOffset(98);
-  mpu.setYGyroOffset(-10);
-  mpu.setZGyroOffset(4);
+  setGyroOffsets(arduinoNumber);
 
   if (devStatus == 0)
   {

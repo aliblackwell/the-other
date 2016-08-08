@@ -16,7 +16,7 @@
 
 int lightZapper = 9; // store pin 9 as our light controller
 
-int arduinoNumber = 4; // which arduino are we working with?
+int arduinoNumber = 2; // which arduino are we working with?
 
 // 1 and 2 should be THROWTATE
 #define THROWTATE

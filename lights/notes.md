@@ -6,66 +6,42 @@ Does the sensor give readings back to the Serial monitor?
 
 With the battery plugged in, does the transistor respond to the sensor for > 5m?
 
-#### Light 1
+#### Transistor Test
 
-Basic Sensor test: fail
+Does a multimeter register a fading voltage out of the transistor?
 
-Reason: SCL to A5 has no charge
-A5 not giving any charge
+#### Light 1: PASS
 
-Have resoldered the A5 to the bottom but it always stops showing a current when soldered to SCL. SCL chip also get extremely hot, much hotter than the others.
+* Basic Sensor test: PASS
+* Advanced Sensor test: PASS
+* Transistor Test: PASS
 
-Conclusion: bust SCL on the sensor
+#### Light 2: PASS
 
-#### Light 2: FAIL
+* Basic Sensor test: PASS
+* Advanced Sensor test: PASS
+* Transistor Test: PASS
 
-Basic Sensor test: fail
+#### Light 3: PASS
 
-Advanced Sensor test:
+* Basic Sensor test: PASS
+* Advanced Sensor test: PASS
+* Transistor Test: PASS
 
-All soldered joints on sensor working.
+#### Light 4: PASS
 
-Gets to DMP initialisation and freezes.
+* Basic Sensor test: PASS
+* Advanced Sensor test: PASS
+* Transistor Test: PASS
 
-Have tried all sorts:
+#### Light 5: FAIL
 
-* script that doesn't use interrupts
-* [clearing FIFO buffer](http://arduino.stackexchange.com/questions/10308/how-to-clear-fifo-buffer-on-mpu6050)
-* [Waiting to connect properly](http://www.i2cdevlib.com/forums/topic/113-mpu6050-dmp-sketch-hangs-sometimes/#entry373) (does this fix the hanging issue?)
-
-[uploading code failed numerous times with this error](http://forum.arduino.cc/index.php?topic=28223.0)
-
-Conclusion: shorted sensor, probably by touching 12V to digital pin. Oops.
-
-#### Light 3
-
-Basic Sensor test: fail
-
-Advanced Sensor test: fail
-
-// Voltage out of transistor not being regulated.
-
-SCL no charge
-SDA no charge
-
-Conclusion: bust MPU6050. Same as above.
-
-#### Light 4: FAIL
-
-Basic Sensor test: fail
-
-Advanced Sensor test: fail
-
-When tested with a multimeter, SCL and SDA are only registering a tiny bit of current, much less than Light 5.
-
-Main.ino serial is blank. i2c-scanner just scans.
-
-Conclusion: bust MPU6500 chip
-
-#### Light 5
-
-Basic Sensor test: pass
-
-Advanced Sensor test: pass
+Basic Sensor test: PASS
+Advanced Sensor test: PASS
 
 This board ran Throwtate mode successfully for 45 minutes sitting in place in its bulb. [Here is a video of it in action](https://goo.gl/photos/sgEHjvnzzeM1a45N9). It has been sent to rehearsals.
+
+Dim light on sensor after two days in rehearsal, assuming exposed wires have fused something
+
+
+

@@ -172,7 +172,7 @@ void outputSensorValues() {
 
 */
 
-void detectRotation() {
+void detectRotation(boolean stoppedThrow) {
 
   //Need these methods to populate ypr
   mpu.dmpGetQuaternion(&q, fifoBuffer);
@@ -181,10 +181,57 @@ void detectRotation() {
   mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
 
   int yawNumber = ypr[0] * 180/M_PI; // get value of yaw number out of ypr array and convert to radians
-  yawNumber=removeNegativeSign(yawNumber);
+  yawNumber = removeNegativeSign(yawNumber);
   yawNumber = map(yawNumber, 0, 180, 0, 255);
+
+  // If this is the first time this is running after a throw
+  // fade the light from 0 to where the yawNumber wants to be:
+  int fader = 0;
+  if (stoppedThrow == true) {
+    while(fader != 255){
+      analogWrite(9, fader);
+      fader++;
+      delay(2);
+    }
+    while(fader != yawNumber) {
+      analogWrite(9, fader);
+      fader--;
+      delay(4);
+    }
+  }
+
   printIntToSerial(yawNumber); // use a pretty print function from helpers.ino
+
+  if (yawNumber <= 10) {
+    yawNumber = 0;
+  }
+
   analogWrite(9, yawNumber);
+}
+
+/*
+
+  totalAcceleration
+
+  Calculates the total acceleration of the device
+
+*/
+
+int totalAcceleration() {
+  mpu.dmpGetQuaternion(&q, fifoBuffer);
+  mpu.dmpGetAccel(&aa, fifoBuffer);
+  mpu.dmpGetGravity(&gravity, &q);
+  mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+
+//Create variables for absolute values of x, y and z motion//
+  int x = removeNegativeSign(aaReal.x);
+  int y = removeNegativeSign(aaReal.y);
+  int z = removeNegativeSign(aaReal.z);
+  //Adding the values of x, y, z together//
+  int totalValue = (x + y + z);
+
+  return(totalValue);
+
 }
 
 /*
@@ -196,20 +243,13 @@ void detectRotation() {
 */
 
 boolean detectThrow() {
-  mpu.dmpGetQuaternion(&q, fifoBuffer);
-  mpu.dmpGetAccel(&aa, fifoBuffer);
-  mpu.dmpGetGravity(&gravity, &q);
-  mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
 
-//Create variables for absolute values of x, y and z motion//
-  int x= removeNegativeSign(aaReal.x);
-  int y= removeNegativeSign(aaReal.y);
-  int z= removeNegativeSign(aaReal.z);
-  //Adding the values of x, y, z together//
-  int totalValue = (x + y + z);
+  int accelleration = totalAcceleration();
+
+  Serial.println(accelleration);
 
   //if statement, if the total value is greater than 8000, we assume that the device is moving
-  if(totalValue > 8000){
+  if(accelleration > 8000){
     // device is being thrown
     return true;
   }else{
@@ -218,6 +258,9 @@ boolean detectThrow() {
   }
 
 }
+
+
+
 
 /*
 

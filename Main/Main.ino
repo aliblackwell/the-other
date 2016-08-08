@@ -16,10 +16,11 @@
 
 int lightZapper = 9; // store pin 9 as our light controller
 
-int arduinoNumber = 2; // which arduino are we working with?
+int arduinoNumber = 3; // which arduino are we working with?
 
 // 1 and 2 should be THROWTATE
 #define THROWTATE
+boolean stoppedThrow = false;
 
 // 3, 4, 5 should be CENTRIFUGAL
 //#define CENTRIFUGAL
@@ -167,19 +168,20 @@ void loop() {
     // (this lets us immediately read more without waiting for an interrupt)
     fifoCount -= packetSize;
 
-
     #ifdef THROWTATE
 
-      // This light is THROWTATE
-      bool throwDetected = detectThrow();
-      if(throwDetected){
-        digitalWrite(lightZapper, LOW);
+      int acceleration = totalAcceleration();
+
+      if (acceleration >= 8000) {
         Serial.print("THROW");
-        Serial.print("\n");
-      }else{
-        Serial.print("NO");
-        Serial.print("\n");
-        detectRotation();
+        digitalWrite(lightZapper, LOW);
+        delay(100);
+        stoppedThrow = true;
+      } else {
+        Serial.print("ROTATE");
+
+        detectRotation(stoppedThrow);
+        stoppedThrow = false;
       }
 
     #endif

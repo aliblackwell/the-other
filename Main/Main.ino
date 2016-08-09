@@ -16,10 +16,13 @@
 
 int lightZapper = 9; // store pin 9 as our light controller
 
-int arduinoNumber = 3; // which arduino are we working with?
+int arduinoNumber = 4; // which arduino are we working with?
 
-// 1 and 2 should be THROWTATE
-#define THROWTATE
+// 2 – 6 should be THROWTATE
+//#define THROWTATE
+
+// 1 should be NOTHROW
+#define NOTHROW
 boolean stoppedThrow = false;
 
 // 3, 4, 5 should be CENTRIFUGAL
@@ -172,32 +175,22 @@ void loop() {
 
       int acceleration = totalAcceleration();
 
-      if (acceleration >= 8000) {
+      if (acceleration >= 9000) {
         Serial.print("THROW");
         digitalWrite(lightZapper, LOW);
         delay(100);
         stoppedThrow = true;
       } else {
-        Serial.print("ROTATE");
-
+        //Serial.print("ROTATE");
         detectRotation(stoppedThrow);
         stoppedThrow = false;
       }
 
     #endif
 
-    #ifdef CENTRIFUGAL
+    #ifdef NOTHROW
 
-      bool spinDetected = detectSpin();
-      if (spinDetected) {
-        digitalWrite(lightZapper, LOW);
-        Serial.print("SPIN");
-        Serial.print("\n");
-      } else {
-        Serial.print("UPANDDOWN");
-        Serial.print("\n");
-        detectVerticalToHorizontal();
-      }
+      detectRotation(stoppedThrow);
 
     #endif
 

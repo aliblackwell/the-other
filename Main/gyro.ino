@@ -5,42 +5,54 @@ void setGyroOffsets(int arduinoNumber) {
   int xGyroOffset, yGyroOffset, zGyroOffset;
 
   switch (arduinoNumber) {
-    case 1: xAccelOffset = -4490;
-            yAccelOffset = 1394;
-            zAccellOffset = 1141;
-            xGyroOffset = 176;
-            yGyroOffset = 66;
-            zGyroOffset = 45;
-            Serial.print("ard1");
-            break;
-    case 2: xAccelOffset = -858;
-            yAccelOffset = -1190;
-            zAccellOffset = 1791;
-            xGyroOffset = 48;
-            yGyroOffset = 54;
-            zGyroOffset = -4;
-            break;
-    case 3: xAccelOffset = 65;
-            yAccelOffset = 2791;
-            zAccellOffset = 1481;
-            xGyroOffset = 39;
-            yGyroOffset = -13;
-            zGyroOffset = 21;
-            break;
-    case 4: xAccelOffset = -2147;
-            yAccelOffset = -1304;
-            zAccellOffset = 1382;
-            xGyroOffset = 194;
-            yGyroOffset = 5;
-            zGyroOffset = 4;
-            break;
-    default:xAccelOffset = 187; // default number 5
-            yAccelOffset = 2323;
-            zAccellOffset = 1380;
-            xGyroOffset = 98;
-            yGyroOffset = -56;
-            zGyroOffset = 7;
-            break;
+    case 1:
+      xAccelOffset = -4490;
+      yAccelOffset = 1394;
+      zAccellOffset = 1141;
+      xGyroOffset = 176;
+      yGyroOffset = 66;
+      zGyroOffset = 45;
+      break;
+    case 2:
+      xAccelOffset = -858;
+      yAccelOffset = -1190;
+      zAccellOffset = 1791;
+      xGyroOffset = 48;
+      yGyroOffset = 54;
+      zGyroOffset = -4;
+      break;
+    case 3:
+      xAccelOffset = 65;
+      yAccelOffset = 2791;
+      zAccellOffset = 1481;
+      xGyroOffset = 39;
+      yGyroOffset = -13;
+      zGyroOffset = 21;
+      break;
+    case 4:
+      xAccelOffset = -2147;
+      yAccelOffset = -1304;
+      zAccellOffset = 1382;
+      xGyroOffset = 194;
+      yGyroOffset = 5;
+      zGyroOffset = 4;
+      break;
+    case 5:
+      xAccelOffset = 187;
+      yAccelOffset = 2323;
+      zAccellOffset = 1380;
+      xGyroOffset = 98;
+      yGyroOffset = -56;
+      zGyroOffset = 7;
+      break;
+    default:
+      xAccelOffset = 187; // default number 6
+      yAccelOffset = 2323;
+      zAccellOffset = 1380;
+      xGyroOffset = 98;
+      yGyroOffset = -56;
+      zGyroOffset = 7;
+      break;
   }
 
   mpu.setXAccelOffset(xAccelOffset);
@@ -51,9 +63,6 @@ void setGyroOffsets(int arduinoNumber) {
   mpu.setZGyroOffset(zGyroOffset);
 
 }
-
-
-
 
 void outputSensorValues() {
 
@@ -172,6 +181,9 @@ void outputSensorValues() {
 
 */
 
+int rotationNumber = 1;
+int previousYawNumber = 1;
+
 void detectRotation(boolean stoppedThrow) {
 
   //Need these methods to populate ypr
@@ -180,33 +192,76 @@ void detectRotation(boolean stoppedThrow) {
   mpu.dmpGetGravity(&gravity, &q);
   mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
 
-  int yawNumber = ypr[0] * 180/M_PI; // get value of yaw number out of ypr array and convert to radians
-  yawNumber = removeNegativeSign(yawNumber);
-  yawNumber = map(yawNumber, 0, 180, 0, 255);
+  // yawNumber is between -179 and 179
+  int yawNumber = ypr[0] * 180/M_PI;
+
+  // brightness will be between 0 and 255
+  int brightness;
+
+  // If it has just been thrown, reset the rotation number to 1
+  if (stoppedThrow) {
+    rotationNumber = 1;
+  }
+
+  // Decrement the rotation number if it's going into positive numbers
+  if (previousYawNumber != yawNumber) {
+
+    // we don't always get numbers one after the other
+    // sometimes you get e.g. -176 -178 175 173
+    int result = yawNumber * previousYawNumber;
+
+    if (result < 0) {
+      // we have changed (minus * plus == minus)
+      if (yawNumber > previousYawNumber) {
+        rotationNumber++;
+      } else {
+        rotationNumber--;
+      }
+    }
+  }
+
+  // Store the yawNumber for checking above next time
+  previousYawNumber = yawNumber;
+
+  // Map the yawNumber to a brightness. Flip it if the rotation number is even.
+  if (removeNegativeSign(rotationNumber) % 2 == 0) {
+    brightness = map(yawNumber, -179, 179, 255, 0);
+  } else {
+    brightness = map(yawNumber, -179, 179, 0, 255);
+  }
+
+  // Allow more 'give' when the brightness is near zero so it is easier to turn off
+  if (brightness <= 10) {
+    brightness = 0;
+  }
 
   // If this is the first time this is running after a throw
   // fade the light from 0 to where the yawNumber wants to be:
-  int fader = 0;
+  // (the delay within fadeFromValueToValue stops the lights from flickering)
   if (stoppedThrow == true) {
-    while(fader != 255){
-      analogWrite(9, fader);
-      fader++;
-      delay(2);
-    }
-    while(fader != yawNumber) {
-      analogWrite(9, fader);
-      fader--;
-      delay(4);
-    }
+    fadeFromValueToValue(0, 255, 2);
+    fadeFromValueToValue(255, brightness, 4);
   }
 
-  printIntToSerial(yawNumber); // use a pretty print function from helpers.ino
+  // Write the brightness to the pin
+  analogWrite(9, brightness);
 
-  if (yawNumber <= 10) {
-    yawNumber = 0;
+  // Serial.println(yawNumber);
+  // Serial.println(brightness);
+  // Serial.println(rotationNumber);
+
+}
+
+void fadeFromValueToValue(int startBrightness, int targetBrightness, int speed) {
+  while(startBrightness != targetBrightness) {
+    analogWrite(9, startBrightness);
+    if (startBrightness > targetBrightness) {
+      startBrightness--;
+    } else {
+      startBrightness++;
+    }
+    delay(speed);
   }
-
-  analogWrite(9, yawNumber);
 }
 
 /*
@@ -244,12 +299,10 @@ int totalAcceleration() {
 
 boolean detectThrow() {
 
-  int accelleration = totalAcceleration();
-
-  Serial.println(accelleration);
+  int acceleration = totalAcceleration();
 
   //if statement, if the total value is greater than 8000, we assume that the device is moving
-  if(accelleration > 8000){
+  if(acceleration > 8000){
     // device is being thrown
     return true;
   }else{
@@ -257,22 +310,8 @@ boolean detectThrow() {
     return false;
   }
 
-}
+  // Serial.println(acceleration);
 
-
-
-
-/*
-
-  detectThrow
-
-  This function should detect a spin
-
-*/
-
-boolean detectSpin() {
-  // Centrifugal force!
-  return false;
 }
 
 /*
@@ -309,7 +348,6 @@ void detectVerticalToHorizontal() {
 
   analogWrite(lightZapper, lightStrength); //set the led_pin value to the lightStrength value
 
-
 }
 
 
@@ -325,7 +363,3 @@ void detectCentrifugalForce() {
 
 
 }
-
-
-
-

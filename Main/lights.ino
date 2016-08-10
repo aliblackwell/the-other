@@ -21,4 +21,13 @@ void  updateLightRotationAnimation(int brightness) {
 
 }
 
+int currentBrightness;
+
+void writeToLight(int brightness) {
+  if (brightness != currentBrightness) {
+    analogWrite(9, brightness);
+    currentBrightness = brightness;
+  }
+}
+
 

@@ -38,11 +38,11 @@ void setGyroOffsets(int arduinoNumber) {
       zGyroOffset = 4;
       break;
     case 5:
-      xAccelOffset = 187;
-      yAccelOffset = 2323;
-      zAccellOffset = 1380;
-      xGyroOffset = 98;
-      yGyroOffset = -56;
+      xAccelOffset = -2580;
+      yAccelOffset = 306;
+      zAccellOffset = 1810;
+      xGyroOffset = 61;
+      yGyroOffset = 22;
       zGyroOffset = 7;
       break;
     default:
@@ -183,6 +183,8 @@ void outputSensorValues() {
 
 int rotationNumber = 1;
 int previousYawNumber = 1;
+boolean firstChanged = false;
+boolean secondChanged = false;
 
 void detectRotation(boolean stoppedThrow) {
 
@@ -203,12 +205,14 @@ void detectRotation(boolean stoppedThrow) {
     rotationNumber = 1;
   }
 
+  // we don't always get numbers one after the other
+  // sometimes you get e.g. -176 -178 175 173
+  int result = yawNumber * previousYawNumber;
+
   // Decrement the rotation number if it's going into positive numbers
   if (previousYawNumber != yawNumber) {
 
-    // we don't always get numbers one after the other
-    // sometimes you get e.g. -176 -178 175 173
-    int result = yawNumber * previousYawNumber;
+
 
     if (result < 0) {
       // we have changed (minus * plus == minus)
@@ -220,20 +224,47 @@ void detectRotation(boolean stoppedThrow) {
     }
   }
 
+
+
+
   // Store the yawNumber for checking above next time
   previousYawNumber = yawNumber;
 
   // Map the yawNumber to a brightness. Flip it if the rotation number is even.
-  if (removeNegativeSign(rotationNumber) % 2 == 0) {
-    brightness = map(yawNumber, -179, 179, 255, 0);
+  if (removeNegativeSign(rotationNumber) % 2 == 1) {
+
+    if (result < 0) {
+      firstChanged = !firstChanged;
+    }
+
+    if (firstChanged == true) {
+      brightness = map(yawNumber, -179, 179, 255, 128); // FIRST SPIN
+    } else {
+      brightness = map(yawNumber, -179, 179, 0, 127); // THIRD SPIN
+    }
+
+
+
   } else {
-    brightness = map(yawNumber, -179, 179, 0, 255);
+
+    if (result < 0) {
+      secondChanged = !secondChanged;
+    }
+
+    if (secondChanged == true) {
+      brightness = map(yawNumber, -179, 179, 127, 0); // SECOND SPIN
+    } else {
+      brightness = map(yawNumber, -179, 179, 128, 254); // FOURTH SPIN
+    }
+
+
+
   }
 
   // Allow more 'give' when the brightness is near zero so it is easier to turn off
-  if (brightness <= 10) {
-    brightness = 0;
-  }
+  // if (brightness <= 10) {
+  //   brightness = 0;
+  // }
 
   // If this is the first time this is running after a throw
   // fade the light from 0 to where the yawNumber wants to be:
@@ -243,18 +274,17 @@ void detectRotation(boolean stoppedThrow) {
     fadeFromValueToValue(255, brightness, 4);
   }
 
-  // Write the brightness to the pin
-  analogWrite(9, brightness);
+  writeToLight(brightness);
 
   // Serial.println(yawNumber);
-  // Serial.println(brightness);
-  // Serial.println(rotationNumber);
+  Serial.println(brightness);
+  //Serial.println(rotationNumber);
 
 }
 
 void fadeFromValueToValue(int startBrightness, int targetBrightness, int speed) {
   while(startBrightness != targetBrightness) {
-    analogWrite(9, startBrightness);
+    writeToLight(startBrightness);
     if (startBrightness > targetBrightness) {
       startBrightness--;
     } else {
@@ -346,7 +376,7 @@ void detectVerticalToHorizontal() {
   Serial.print(myPitch);
   Serial.print("\n");
 
-  analogWrite(lightZapper, lightStrength); //set the led_pin value to the lightStrength value
+  writeToLight(lightStrength); //set the led_pin value to the lightStrength value
 
 }
 

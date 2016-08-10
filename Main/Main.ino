@@ -22,7 +22,7 @@ int arduinoNumber = 4; // which arduino are we working with?
 //#define THROWTATE
 
 // 1 should be NOTHROW
-#define NOTHROW
+#define THROWTATE
 boolean stoppedThrow = false;
 
 // 3, 4, 5 should be CENTRIFUGAL
@@ -175,7 +175,7 @@ void loop() {
 
       int acceleration = totalAcceleration();
 
-      if (acceleration >= 9000) {
+      if (acceleration >= 6000) {
         Serial.print("THROW");
         digitalWrite(lightZapper, LOW);
         delay(100);

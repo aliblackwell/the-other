@@ -46,12 +46,12 @@ void setGyroOffsets(int arduinoNumber) {
       zGyroOffset = 7;
       break;
     default:
-      xAccelOffset = 187; // default number 6
-      yAccelOffset = 2323;
-      zAccellOffset = 1380;
-      xGyroOffset = 98;
-      yGyroOffset = -56;
-      zGyroOffset = 7;
+      xAccelOffset = 479; // default number 6
+      yAccelOffset = -920;
+      zAccellOffset = 1388;
+      xGyroOffset = 54;
+      yGyroOffset = -30;
+      zGyroOffset = 17;
       break;
   }
 
@@ -185,6 +185,8 @@ int rotationNumber = 1;
 int previousYawNumber = 1;
 boolean firstChanged = false;
 boolean secondChanged = false;
+boolean acceleratedMode = false;
+int acceleratedModeCounter = 0;
 
 void detectRotation(boolean stoppedThrow) {
 
@@ -230,41 +232,61 @@ void detectRotation(boolean stoppedThrow) {
   // Store the yawNumber for checking above next time
   previousYawNumber = yawNumber;
 
-  // Map the yawNumber to a brightness. Flip it if the rotation number is even.
-  if (removeNegativeSign(rotationNumber) % 2 == 1) {
+  int accel = totalAcceleration();
+
+  if (acceleratedMode == true) {
 
     if (result < 0) {
-      firstChanged = !firstChanged;
+      acceleratedModeCounter++;
     }
 
-    if (firstChanged == true) {
-      brightness = map(yawNumber, -179, 179, 255, 128); // FIRST SPIN
+    if (acceleratedModeCounter == 4) {
+      acceleratedMode = false;
+    }
+
+
+    // Map the yawNumber to a brightness. Flip it if the rotation number is even.
+    if (removeNegativeSign(rotationNumber) % 2 == 1) {
+      if (result < 0) {
+        firstChanged = !firstChanged;
+      }
+      if (firstChanged == true) {
+        brightness = map(yawNumber, -179, 179, 255, 128); // FIRST SPIN
+      } else {
+        brightness = map(yawNumber, -179, 179, 0, 127); // THIRD SPIN
+      }
     } else {
-      brightness = map(yawNumber, -179, 179, 0, 127); // THIRD SPIN
+
+      if (result < 0) {
+        secondChanged = !secondChanged;
+      }
+
+      if (secondChanged == true) {
+        brightness = map(yawNumber, -179, 179, 127, 0); // SECOND SPIN
+      } else {
+        brightness = map(yawNumber, -179, 179, 128, 254); // FOURTH SPIN
+      }
     }
 
+  } else { // acceleratedMode is false
 
-
-  } else {
-
-    if (result < 0) {
-      secondChanged = !secondChanged;
-    }
-
-    if (secondChanged == true) {
-      brightness = map(yawNumber, -179, 179, 127, 0); // SECOND SPIN
+    // Map the yawNumber to a brightness. Flip it if the rotation number is even.
+    if (removeNegativeSign(rotationNumber) % 2 == 0) {
+      brightness = map(yawNumber, -179, 179, 255, 0);
     } else {
-      brightness = map(yawNumber, -179, 179, 128, 254); // FOURTH SPIN
+      brightness = map(yawNumber, -179, 179, 0, 255);
     }
 
-
+    if (accel > 6000) {
+      acceleratedMode = true;
+    }
 
   }
 
   // Allow more 'give' when the brightness is near zero so it is easier to turn off
-  // if (brightness <= 10) {
-  //   brightness = 0;
-  // }
+  if (brightness <= 10) {
+    brightness = 0;
+  }
 
   // If this is the first time this is running after a throw
   // fade the light from 0 to where the yawNumber wants to be:

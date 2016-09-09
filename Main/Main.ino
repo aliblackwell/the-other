@@ -16,13 +16,13 @@
 
 int lightZapper = 9; // store pin 9 as our light controller
 
-int arduinoNumber = 4; // which arduino are we working with?
+int arduinoNumber = 6; // which arduino are we working with?
 
 // 2 – 6 should be THROWTATE
-//#define THROWTATE
+#define THROWTATE
 
 // 1 should be NOTHROW
-#define THROWTATE
+//#define NOTHROW
 boolean stoppedThrow = false;
 
 // 3, 4, 5 should be CENTRIFUGAL
@@ -175,7 +175,7 @@ void loop() {
 
       int acceleration = totalAcceleration();
 
-      if (acceleration >= 6000) {
+      if (acceleration >= 9000) {
         Serial.print("THROW");
         digitalWrite(lightZapper, LOW);
         delay(100);

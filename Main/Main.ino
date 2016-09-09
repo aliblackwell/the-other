@@ -58,10 +58,6 @@ void dmpDataReady() {
     mpuInterrupt = true;
 }
 
-
-
-
-
 int myPitch = 0; // variable needed to horizontal to verrtical function
 float lightStrength = 0; // variable needed to horizontal to verrtical function
 
@@ -195,10 +191,10 @@ void loop() {
     #endif
 
     // For testing, configure options in gyro.ino to see the data
-    outputSensorValues();
+    // outputSensorValues();
 
     // blink LED to indicate activity
-    blinkState = !blinkState;
-    digitalWrite(led_pin, LOW);
+    // blinkState = !blinkState;
+    // digitalWrite(led_pin, LOW);
   }
 }

@@ -16,13 +16,17 @@
 
 int lightZapper = 9; // store pin 9 as our light controller
 
-int arduinoNumber = 4; // which arduino are we working with?
+int arduinoNumber = 6; // which arduino are we working with?
 
-// 1 and 2 should be THROWTATE
-//#define THROWTATE
+// 2 – 6 should be THROWTATE
+#define THROWTATE
+
+// 1 should be NOTHROW
+//#define NOTHROW
+boolean stoppedThrow = false;
 
 // 3, 4, 5 should be CENTRIFUGAL
-#define CENTRIFUGAL
+//#define CENTRIFUGAL
 
 // Crete an instance of MPU6050 called mpu
 MPU6050 mpu;
@@ -54,20 +58,79 @@ void dmpDataReady() {
     mpuInterrupt = true;
 }
 
-
-
-
-
 int myPitch = 0; // variable needed to horizontal to verrtical function
 float lightStrength = 0; // variable needed to horizontal to verrtical function
 
 void setup() {
 
-  // Tell our user we are on
-  acknowledgeSetup();
+  Wire.begin();
 
-  // Run the default code to setup the sensor (located in startup.ino – have a look, don't freak out)
-  runSetup();
+
+  // test the connection to the I2C bus, sometimes it doesn't connect
+  // keep trying to connect to I2C bus if we get an error
+  boolean error = true;
+  while (error) {
+     Wire.beginTransmission(104);
+     error = Wire.endTransmission(); // if error = 0, we are properly connected
+     if (error) { // if we aren't properly connected, try connecting again and loop
+       Serial.println("  ");
+       Serial.println("Not properly connected to I2C, trying again");
+       Serial.println(" ");
+       Wire.begin();
+       TWBR = 24; // 400kHz I2C clock
+     }
+  }
+  Serial.println("Properly connected to I2C");
+
+  Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
+  Serial.begin(115200);
+  // initialize device
+  Serial.println(F("Initializing I2C devices..."));
+  Serial.print(arduinoNumber);
+  mpu.initialize();
+
+  // verify connection
+  Serial.println(F("Testing device connections..."));
+  Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
+  delay(2);
+
+  // load and configure the DMP
+  Serial.println(F("Initializing DMP..."));
+  Serial.print(devStatus);
+  devStatus = mpu.dmpInitialize();
+  Serial.print(devStatus);
+  // supply your own gyro offsets here, scaled for min sensitivity
+
+  setGyroOffsets(arduinoNumber);
+
+  if (devStatus == 0)
+  {
+    // turn on the DMP, now that it's ready
+    Serial.println(F("Enabling DMP..."));
+    mpu.setDMPEnabled(true);
+
+    // enable Arduino interrupt detection
+    Serial.println(F("Enabling interrupt detection (Arduino external interrupt 0)..."));
+    attachInterrupt(0, dmpDataReady, RISING);
+    mpuIntStatus = mpu.getIntStatus();
+
+    // set our DMP Ready flag so the main loop() function knows it's okay to use it
+    Serial.println(F("DMP ready! Waiting for first interrupt..."));
+    dmpReady = true;
+
+    // get expected DMP packet size for later comparison
+    packetSize = mpu.dmpGetFIFOPacketSize();
+  }
+  else
+  {
+    // ERROR!
+    // 1 = initial memory load failed
+    // 2 = DMP configuration updates failed
+    // (if it's going to break, usually the code will be 1)
+    Serial.print(F("DMP Initialization failed (code "));
+    Serial.print(devStatus);
+    Serial.println(F(")"));
+  }
 
   // Setup our pin to control the voltage into the LEDs
   pinMode(lightZapper, OUTPUT);
@@ -104,43 +167,34 @@ void loop() {
     // (this lets us immediately read more without waiting for an interrupt)
     fifoCount -= packetSize;
 
-
     #ifdef THROWTATE
 
-      // This light is THROWTATE
-      bool throwDetected = detectThrow();
-      if(throwDetected){
-        digitalWrite(lightZapper, LOW);
+      int acceleration = totalAcceleration();
+
+      if (acceleration >= 9000) {
         Serial.print("THROW");
-        Serial.print("\n");
-      }else{
-        Serial.print("NO");
-        Serial.print("\n");
-        detectRotation();
+        digitalWrite(lightZapper, LOW);
+        delay(100);
+        stoppedThrow = true;
+      } else {
+        //Serial.print("ROTATE");
+        detectRotation(stoppedThrow);
+        stoppedThrow = false;
       }
 
     #endif
 
-    #ifdef CENTRIFUGAL
+    #ifdef NOTHROW
 
-      bool spinDetected = detectSpin();
-      if (spinDetected) {
-        digitalWrite(lightZapper, LOW);
-        Serial.print("SPIN");
-        Serial.print("\n");
-      } else {
-        Serial.print("UPANDDOWN");
-        Serial.print("\n");
-        detectVerticalToHorizontal();
-      }
+      detectRotation(stoppedThrow);
 
     #endif
 
     // For testing, configure options in gyro.ino to see the data
-    outputSensorValues();
+    // outputSensorValues();
 
     // blink LED to indicate activity
-    blinkState = !blinkState;
-    digitalWrite(led_pin, LOW);
+    // blinkState = !blinkState;
+    // digitalWrite(led_pin, LOW);
   }
 }

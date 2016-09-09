@@ -65,8 +65,12 @@ void setup() {
   // initialize serial communication
   Serial.begin(115200);
 
+  Serial.println(F("Before init.\n"));
+
   // initialize device
   accelgyro.initialize();
+
+  Serial.println(F("After init.\n"));
 
   // wait for ready
   while (Serial.available() && Serial.read()); // empty buffer

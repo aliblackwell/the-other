@@ -214,8 +214,6 @@ void detectRotation(boolean stoppedThrow) {
   // Decrement the rotation number if it's going into positive numbers
   if (previousYawNumber != yawNumber) {
 
-
-
     if (result < 0) {
       // we have changed (minus * plus == minus)
       if (yawNumber > previousYawNumber) {
@@ -226,74 +224,14 @@ void detectRotation(boolean stoppedThrow) {
     }
   }
 
-
-
-
   // Store the yawNumber for checking above next time
   previousYawNumber = yawNumber;
 
-  int accel = totalAcceleration();
-
-  if (acceleratedMode == true) {
-
-    if (result < 0) {
-      acceleratedModeCounter++;
-    }
-
-    if (acceleratedModeCounter == 4) {
-      acceleratedMode = false;
-    }
-
-
-    // Map the yawNumber to a brightness. Flip it if the rotation number is even.
-    if (removeNegativeSign(rotationNumber) % 2 == 1) {
-      if (result < 0) {
-        firstChanged = !firstChanged;
-      }
-      if (firstChanged == true) {
-        brightness = map(yawNumber, -179, 179, 255, 128); // FIRST SPIN
-      } else {
-        brightness = map(yawNumber, -179, 179, 0, 127); // THIRD SPIN
-      }
-    } else {
-
-      if (result < 0) {
-        secondChanged = !secondChanged;
-      }
-
-      if (secondChanged == true) {
-        brightness = map(yawNumber, -179, 179, 127, 0); // SECOND SPIN
-      } else {
-        brightness = map(yawNumber, -179, 179, 128, 254); // FOURTH SPIN
-      }
-    }
-
-  } else { // acceleratedMode is false
-
-    // Map the yawNumber to a brightness. Flip it if the rotation number is even.
-    if (removeNegativeSign(rotationNumber) % 2 == 0) {
-      brightness = map(yawNumber, -179, 179, 255, 0);
-    } else {
-      brightness = map(yawNumber, -179, 179, 0, 255);
-    }
-
-    if (accel > 6000) {
-      acceleratedMode = true;
-    }
-
-  }
-
-  // Allow more 'give' when the brightness is near zero so it is easier to turn off
-  if (brightness <= 10) {
-    brightness = 0;
-  }
-
-  // If this is the first time this is running after a throw
-  // fade the light from 0 to where the yawNumber wants to be:
-  // (the delay within fadeFromValueToValue stops the lights from flickering)
-  if (stoppedThrow == true) {
-    fadeFromValueToValue(0, 255, 2);
-    fadeFromValueToValue(255, brightness, 4);
+  // Map the yawNumber to a brightness. Flip it if the rotation number is even.
+  if (removeNegativeSign(rotationNumber) % 2 == 0) {
+    brightness = map(yawNumber, -179, 179, 255, 1);
+  } else {
+    brightness = map(yawNumber, -179, 179, 1, 255);
   }
 
   writeToLight(brightness);

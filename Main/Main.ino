@@ -16,19 +16,15 @@
 
 int lightZapper = 9; // store pin 9 as our light controller
 
-int arduinoNumber = 1; // which arduino are we working with?
+int arduinoNumber = 2; // which arduino are we working with?
 
 // 2 – 6 should be THROWTATE
 #define THROWTATE
 
 // 1 should be NOTHROW
 //#define NOTHROW
-boolean stoppedThrow = false;
 
-// 3, 4, 5 should be CENTRIFUGAL
-//#define CENTRIFUGAL
-
-// Crete an instance of MPU6050 called mpu
+// Create an instance of MPU6050 called mpu
 MPU6050 mpu;
 
 #define INTERRUPT_PIN 2  // use pin 2 on Arduino Uno & most boards
@@ -175,18 +171,15 @@ void loop() {
         Serial.print("THROW");
         digitalWrite(lightZapper, LOW);
         delay(100);
-        stoppedThrow = true;
       } else {
-        //Serial.print("ROTATE");
-        detectRotation(stoppedThrow);
-        stoppedThrow = false;
+        detectRotation();
       }
 
     #endif
 
     #ifdef NOTHROW
 
-      detectRotation(stoppedThrow);
+      detectRotation();
 
     #endif
 

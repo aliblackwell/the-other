@@ -181,14 +181,7 @@ void outputSensorValues() {
 
 */
 
-int rotationNumber = 1;
-int previousYawNumber = 1;
-boolean firstChanged = false;
-boolean secondChanged = false;
-boolean acceleratedMode = false;
-int acceleratedModeCounter = 0;
-
-void detectRotation(boolean stoppedThrow) {
+void detectRotation() {
 
   //Need these methods to populate ypr
   mpu.dmpGetQuaternion(&q, fifoBuffer);
@@ -199,108 +192,13 @@ void detectRotation(boolean stoppedThrow) {
   // yawNumber is between -179 and 179
   int yawNumber = ypr[0] * 180/M_PI;
 
-  // brightness will be between 0 and 255
-  int brightness;
 
-  // If it has just been thrown, reset the rotation number to 1
-  if (stoppedThrow) {
-    rotationNumber = 1;
-  }
+  yawNumber = removeNegativeSign(yawNumber);
+  yawNumber = map(yawNumber, 0, 180, 5, 255);
 
-  // we don't always get numbers one after the other
-  // sometimes you get e.g. -176 -178 175 173
-  int result = yawNumber * previousYawNumber;
+  writeToLight(yawNumber);
 
-  // Decrement the rotation number if it's going into positive numbers
-  if (previousYawNumber != yawNumber) {
-
-
-
-    if (result < 0) {
-      // we have changed (minus * plus == minus)
-      if (yawNumber > previousYawNumber) {
-        rotationNumber++;
-      } else {
-        rotationNumber--;
-      }
-    }
-  }
-
-
-
-
-  // Store the yawNumber for checking above next time
-  previousYawNumber = yawNumber;
-
-  int accel = totalAcceleration();
-
-  if (acceleratedMode == true) {
-
-    if (result < 0) {
-      acceleratedModeCounter++;
-    }
-
-    if (acceleratedModeCounter == 4) {
-      acceleratedMode = false;
-    }
-
-
-    // Map the yawNumber to a brightness. Flip it if the rotation number is even.
-    if (removeNegativeSign(rotationNumber) % 2 == 1) {
-      if (result < 0) {
-        firstChanged = !firstChanged;
-      }
-      if (firstChanged == true) {
-        brightness = map(yawNumber, -179, 179, 255, 128); // FIRST SPIN
-      } else {
-        brightness = map(yawNumber, -179, 179, 0, 127); // THIRD SPIN
-      }
-    } else {
-
-      if (result < 0) {
-        secondChanged = !secondChanged;
-      }
-
-      if (secondChanged == true) {
-        brightness = map(yawNumber, -179, 179, 127, 0); // SECOND SPIN
-      } else {
-        brightness = map(yawNumber, -179, 179, 128, 254); // FOURTH SPIN
-      }
-    }
-
-  } else { // acceleratedMode is false
-
-    // Map the yawNumber to a brightness. Flip it if the rotation number is even.
-    if (removeNegativeSign(rotationNumber) % 2 == 0) {
-      brightness = map(yawNumber, -179, 179, 255, 0);
-    } else {
-      brightness = map(yawNumber, -179, 179, 0, 255);
-    }
-
-    if (accel > 6000) {
-      acceleratedMode = true;
-    }
-
-  }
-
-  // Allow more 'give' when the brightness is near zero so it is easier to turn off
-  if (brightness <= 10) {
-    brightness = 0;
-  }
-
-  // If this is the first time this is running after a throw
-  // fade the light from 0 to where the yawNumber wants to be:
-  // (the delay within fadeFromValueToValue stops the lights from flickering)
-  if (stoppedThrow == true) {
-    fadeFromValueToValue(0, 255, 2);
-    fadeFromValueToValue(255, brightness, 4);
-  }
-
-  writeToLight(brightness);
-
-  // Serial.println(yawNumber);
-  Serial.println(brightness);
-  //Serial.println(rotationNumber);
+  Serial.println(yawNumber);
 
 }
 

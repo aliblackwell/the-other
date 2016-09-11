@@ -5,42 +5,54 @@ void setGyroOffsets(int arduinoNumber) {
   int xGyroOffset, yGyroOffset, zGyroOffset;
 
   switch (arduinoNumber) {
-    case 1: xAccelOffset = -1841;
-            yAccelOffset = 3080;
-            zAccellOffset = 1617;
-            xGyroOffset = 82;
-            yGyroOffset = -11;
-            zGyroOffset = 23;
-            break;
-            break;
-    case 2: xAccelOffset = 326;
-            yAccelOffset = 1913;
-            zAccellOffset = 1593;
-            xGyroOffset = 65;
-            yGyroOffset = 23;
-            zGyroOffset = 46;
-            break;
-    case 3: xAccelOffset = -1382;
-            yAccelOffset = -834;
-            zAccellOffset = 1499;
-            xGyroOffset = 32;
-            yGyroOffset = 22;
-            zGyroOffset = 5;
-            break;
-    case 4: xAccelOffset = 2296;
-            yAccelOffset = 2941;
-            zAccellOffset = 1838;
-            xGyroOffset = 96;
-            yGyroOffset = -11;
-            zGyroOffset = 12;
-            break;
-    default:xAccelOffset = 187; // default number 5
-            yAccelOffset = 2323;
-            zAccellOffset = 1380;
-            xGyroOffset = 98;
-            yGyroOffset = -56;
-            zGyroOffset = 7;
-            break;
+    case 1:
+      xAccelOffset = -4490;
+      yAccelOffset = 1394;
+      zAccellOffset = 1141;
+      xGyroOffset = 176;
+      yGyroOffset = 66;
+      zGyroOffset = 45;
+      break;
+    case 2:
+      xAccelOffset = -858;
+      yAccelOffset = -1190;
+      zAccellOffset = 1791;
+      xGyroOffset = 48;
+      yGyroOffset = 54;
+      zGyroOffset = -4;
+      break;
+    case 3:
+      xAccelOffset = 65;
+      yAccelOffset = 2791;
+      zAccellOffset = 1481;
+      xGyroOffset = 39;
+      yGyroOffset = -13;
+      zGyroOffset = 21;
+      break;
+    case 4:
+      xAccelOffset = -2147;
+      yAccelOffset = -1304;
+      zAccellOffset = 1382;
+      xGyroOffset = 194;
+      yGyroOffset = 5;
+      zGyroOffset = 4;
+      break;
+    case 5:
+      xAccelOffset = -2580;
+      yAccelOffset = 306;
+      zAccellOffset = 1810;
+      xGyroOffset = 61;
+      yGyroOffset = 22;
+      zGyroOffset = 7;
+      break;
+    default:
+      xAccelOffset = 479; // default number 6
+      yAccelOffset = -920;
+      zAccellOffset = 1388;
+      xGyroOffset = 54;
+      yGyroOffset = -30;
+      zGyroOffset = 17;
+      break;
   }
 
   mpu.setXAccelOffset(xAccelOffset);
@@ -51,9 +63,6 @@ void setGyroOffsets(int arduinoNumber) {
   mpu.setZGyroOffset(zGyroOffset);
 
 }
-
-
-
 
 void outputSensorValues() {
 
@@ -180,14 +189,55 @@ void detectRotation() {
   mpu.dmpGetGravity(&gravity, &q);
   mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
 
-  int yawNumber = ypr[0] * 180/M_PI; // get value of yaw number out of ypr array and convert to radians
-  yawNumber=removeNegativeSign(yawNumber);
-  yawNumber = map(yawNumber, 0, 180, 0, 255);
-  printIntToSerial(yawNumber); // use a pretty print function from helpers.ino
+  // yawNumber is between -179 and 179
+  int yawNumber = ypr[0] * 180/M_PI;
 
-  updateLightRotationAnimation(yawNumber); // use our updateLight function from lights.ino
 
-}//
+  yawNumber = removeNegativeSign(yawNumber);
+  yawNumber = map(yawNumber, 0, 180, 5, 255);
+
+  writeToLight(yawNumber);
+
+  Serial.println(yawNumber);
+
+}
+
+void fadeFromValueToValue(int startBrightness, int targetBrightness, int speed) {
+  while(startBrightness != targetBrightness) {
+    writeToLight(startBrightness);
+    if (startBrightness > targetBrightness) {
+      startBrightness--;
+    } else {
+      startBrightness++;
+    }
+    delay(speed);
+  }
+}
+
+/*
+
+  totalAcceleration
+
+  Calculates the total acceleration of the device
+
+*/
+
+int totalAcceleration() {
+  mpu.dmpGetQuaternion(&q, fifoBuffer);
+  mpu.dmpGetAccel(&aa, fifoBuffer);
+  mpu.dmpGetGravity(&gravity, &q);
+  mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+
+//Create variables for absolute values of x, y and z motion//
+  int x = removeNegativeSign(aaReal.x);
+  int y = removeNegativeSign(aaReal.y);
+  int z = removeNegativeSign(aaReal.z);
+  //Adding the values of x, y, z together//
+  int totalValue = (x + y + z);
+
+  return(totalValue);
+
+}
 
 /*
 
@@ -198,20 +248,11 @@ void detectRotation() {
 */
 
 boolean detectThrow() {
-  mpu.dmpGetQuaternion(&q, fifoBuffer);
-  mpu.dmpGetAccel(&aa, fifoBuffer);
-  mpu.dmpGetGravity(&gravity, &q);
-  mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
 
-//Create variables for absolute values of x, y and z motion//
-  int x= removeNegativeSign(aaReal.x);
-  int y= removeNegativeSign(aaReal.y);
-  int z= removeNegativeSign(aaReal.z);
-  //Adding the values of x, y, z together//
-  int totalValue = (x + y + z);
+  int acceleration = totalAcceleration();
 
   //if statement, if the total value is greater than 8000, we assume that the device is moving
-  if(totalValue > 8000){
+  if(acceleration > 8000){
     // device is being thrown
     return true;
   }else{
@@ -219,19 +260,8 @@ boolean detectThrow() {
     return false;
   }
 
-}
+  // Serial.println(acceleration);
 
-/*
-
-  detectThrow
-
-  This function should detect a spin
-
-*/
-
-boolean detectSpin() {
-  // Centrifugal force!
-  return false;
 }
 
 /*
@@ -266,8 +296,7 @@ void detectVerticalToHorizontal() {
   Serial.print(myPitch);
   Serial.print("\n");
 
-  analogWrite(lightZapper, lightStrength); //set the led_pin value to the lightStrength value
-
+  writeToLight(lightStrength); //set the led_pin value to the lightStrength value
 
 }
 
@@ -284,7 +313,3 @@ void detectCentrifugalForce() {
 
 
 }
-
-
-
-
